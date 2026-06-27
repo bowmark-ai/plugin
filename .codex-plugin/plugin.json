@@ -1,0 +1,29 @@
+{
+  "name": "bowmark",
+  "version": "0.3.0",
+  "description": "Pre-computed navigation recipes for known websites — parameterized URLs and short UI procedures verified by prior crawls, so the agent skips explore-and-discover. Bundles the bowmark skill and auto-wires the hosted MCP server.",
+  "author": {
+    "name": "Bowmark AI",
+    "url": "https://bowmark.ai"
+  },
+  "homepage": "https://bowmark.ai",
+  "repository": "https://github.com/bowmark-ai/plugin",
+  "license": "MIT",
+  "keywords": [
+    "mcp",
+    "web-agent",
+    "browser",
+    "navigation",
+    "playwright"
+  ],
+  "skills": "./skills/",
+  "mcpServers": "./.mcp.json",
+  "interface": {
+    "displayName": "Bowmark",
+    "shortDescription": "Navigation recipes for known websites — skip explore-and-discover.",
+    "longDescription": "Bowmark looks up pre-computed navigation recipes for known websites (parameterized URLs and short UI procedures verified by prior crawls), so the agent skips exploring the page from scratch. Bundles the bowmark skill and auto-wires the hosted MCP server at api.bowmark.ai/mcp. No API key required.",
+    "developerName": "Bowmark AI",
+    "category": "Productivity",
+    "websiteURL": "https://bowmark.ai"
+  }
+}
