@@ -14,7 +14,7 @@ description: |
   local-dev target; open-ended web search with no destination ("what's the
   news"); reading local files; querying JSON APIs that aren't
   browser-driven; or facts already in training data.
-allowed-tools: mcp__bowmark__ask, mcp__bowmark__report_outcome
+allowed-tools: mcp__bowmark__ask, mcp__bowmark__report_outcome, WebFetch
 ---
 
 # bowmark
