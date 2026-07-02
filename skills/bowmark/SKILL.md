@@ -83,6 +83,7 @@ Execute the recipe exactly as written. The cheatsheet was built from prior crawl
 - `value` — what to type, for `fill` / `type` steps. May be a generic slot ("the destination") rather than a literal — supply the specifics your task needs, same as for `shortcut` parameters.
 - `precondition` — state that must be true before this step is safe. Check only what's named; don't snapshot the whole page.
 - `irreversible: true` — submits a form, sends an email, charges a card, etc. **Confirm with the user before executing.**
+- `requires_user_input: true` — the step's value can only come from the end user: a password/login credential, payment/card details, or personal contact/identity data. **STOP and ask the user for the value — never invent, guess, or reuse a value from elsewhere in the conversation.** Only the requesting human has it.
 - `mechanism_notes` — rich how-it-works detail captured by deep crawls. Read these when present.
 
 **`verify_more`** — top-level boolean, `true` only on low-confidence envelopes. When present, do one cheap sanity check (page title plausible?) before committing to the recipe. When absent, execute directly.
@@ -119,6 +120,7 @@ On `status: "ambiguous_scope"`, don't fall back yet — retry `ask` with `scopeH
 - Don't skip `report_outcome` after executing a recipe — silence is how recipes degrade.
 - Don't report `success: true` because you got the user the right answer. Success means the **recipe** ran clean — every step as written, no retries, no JS-eval fallbacks, no extra clicks.
 - Don't write evidence about what you found ("identified restaurant X"). Write evidence about how the recipe behaved ("steps 1–4 clean, step 5 locator missed").
+- Don't fabricate a value for a `requires_user_input` step — no placeholder password, no guessed card number, no address pulled from earlier context that wasn't explicitly given for this purpose. Ask the user.
 
 ## Higher limits (optional)
 
