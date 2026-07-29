@@ -20,7 +20,7 @@ codex plugin marketplace add bowmark-ai/plugin
 codex /plugins            # open the plugin browser, then install Bowmark
 ```
 
-Either way you get the skill + the MCP (tools `mcp__bowmark__ask`, `mcp__bowmark__report_outcome`) and a card in the host's plugin directory.
+Either way you get the skill + the MCP (tools `mcp__bowmark__get_library`, `mcp__bowmark__run`) and a card in the host's plugin directory.
 
 Other surfaces are unchanged and live elsewhere: skill-only via `npx skills add bowmark-ai/skill` (works on Claude Code, Codex, Cursor, Copilot, OpenCode, …), MCP-only via `claude mcp add` / a Codex `[mcp_servers.bowmark]` block, or point any MCP client straight at the URL. See [bowmark.ai/#install](https://bowmark.ai/#install).
 
