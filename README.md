@@ -45,6 +45,8 @@ packages/plugin/
 
 Claude declares the MCP **inline** in `.claude-plugin/plugin.json`; Codex points its manifest at `.mcp.json`. The two MCP shapes differ (Claude wraps `{ mcpServers: { … } }` / Codex is `{ name: { url } }`), so they're kept separate rather than shared.
 
+**Each host gets its own published destination** — `…/mcp/claude-code-plugin` for Claude and `…/mcp/codex-plugin` for Codex, not the bare `…/mcp`. One segment carries both the install attribution and the platform pin. The api tailors its operating guidance per host, and a plugin manifest is one of the few places the host is known *at install time*, so it pins rather than leaving the api to detect. Keep them distinct when editing: pointing both at one segment would hand Codex the Claude Code text. Detection and the segment list live in [`apps/api/README.md`](https://github.com/Metroxe/bowmark/blob/main/apps/api/README.md#per-platform-instructions).
+
 ## The bundled skill is a mirror — edit canonical, then sync
 
 `skills/bowmark/SKILL.md` mirrors `packages/skill/bowmark/SKILL.md`, the source of truth (minus its release-please version line — see `sync-skill.sh`). A plugin install needs the file in-tree, so it can't reference the separate skill package. **Never edit the copy directly.** After changing the canonical skill:
