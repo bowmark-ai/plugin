@@ -12,13 +12,7 @@
       "source": "./",
       "description": "The web as callable functions: read a typed library, write a short script, Bowmark runs it on the live sites. Bundles the bowmark skill and auto-wires the hosted MCP server (api.bowmark.ai/mcp).",
       "category": "productivity",
-      "keywords": [
-        "mcp",
-        "web-agent",
-        "browser",
-        "automation",
-        "playwright"
-      ]
+      "keywords": ["mcp", "web-agent", "browser", "automation", "playwright"]
     }
   ]
 }
