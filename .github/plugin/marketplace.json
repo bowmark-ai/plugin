@@ -1,0 +1,17 @@
+{
+  "name": "bowmark-ai",
+  "owner": {
+    "name": "Bowmark AI",
+    "url": "https://bowmark.ai"
+  },
+  "metadata": {
+    "description": "Official Bowmark plugin — the web as callable functions, skill + hosted MCP in one install."
+  },
+  "plugins": [
+    {
+      "name": "bowmark",
+      "description": "The web as callable functions: read a typed library, write a short script, Bowmark runs it on the live sites. Bundles the bowmark skill and auto-wires the hosted MCP server (api.bowmark.ai/mcp).",
+      "source": "./"
+    }
+  ]
+}

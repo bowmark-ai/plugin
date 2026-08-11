@@ -1,0 +1,10 @@
+{
+  "name": "bowmark",
+  "version": "4.5.0",
+  "description": "The web as callable functions — search flights across several aggregators, price a part across retailers, and other tasks that only exist behind a live site. The agent reads a typed function library, writes a short script, and Bowmark runs it on the real sites.",
+  "mcpServers": {
+    "bowmark": {
+      "httpUrl": "https://api.bowmark.ai/mcp/gemini-extension"
+    }
+  }
+}

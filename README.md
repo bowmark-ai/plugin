@@ -51,9 +51,13 @@ packages/plugin/
 │   └── plugin.json          #   plugin: bowmark — mcpServers "./.mcp.json", skills "./skills/"
 ├── .agents/plugins/
 │   └── marketplace.json     # Codex marketplace (source {local, "./"})
+├── .github/plugin/
+│   └── marketplace.json     # GitHub Copilot's DEFAULT marketplace path — Copilot deprecated
+│                            #   direct installs, so this is required, not convenient
 ├── .mcp.json                # MCP server config Codex's plugin.json references (HTTP, url)
 ├── plugin.json              # Agent Plugins 1.0.0 manifest — metadata ONLY, no component lists
 ├── mcp.json                 # Agent Plugins MCP config (streamable-http) — NOT the same file as .mcp.json
+├── gemini-extension.json    # Gemini CLI extension — `httpUrl`, NOT `url`, and no bridge
 ├── skills/
 │   └── bowmark/
 │       └── SKILL.md         # MIRROR of packages/skill/bowmark/SKILL.md — do NOT edit here
@@ -80,7 +84,7 @@ CI fails any PR that changes the canonical skill without re-syncing.
 
 ## Versioning
 
-release-please owns `package.json` `version` (component `plugin`, tag `plugin-v*`) and mirrors it into **all three** manifests — `.claude-plugin/plugin.json`, `.codex-plugin/plugin.json` and the root `plugin.json` — at `$.version` via json updaters, so each release republishes the plugin at the new version on every host. **A fourth manifest means a fourth `extra-files` entry**; miss it and that host serves a stale version forever with nothing failing. Ship changes under `feat(plugin):` / `fix(plugin):`.
+release-please owns `package.json` `version` (component `plugin`, tag `plugin-v*`) and mirrors it into **all four** version-carrying manifests — `.claude-plugin/plugin.json`, `.codex-plugin/plugin.json`, the root `plugin.json` and `gemini-extension.json` — at `$.version` via json updaters, so each release republishes the plugin at the new version on every host. **A fifth manifest means a fifth `extra-files` entry**; miss it and that host serves a stale version forever with nothing failing. (The two `marketplace.json` files carry no version and need no entry.) Ship changes under `feat(plugin):` / `fix(plugin):`.
 
 ## Validate
 
