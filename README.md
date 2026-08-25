@@ -1,10 +1,24 @@
 # bowmark plugin
 
+[![Add to Cursor](https://cursor.com/deeplink/mcp-install-dark.svg)](cursor://anysphere.cursor-deeplink/mcp/install?name=bowmark&config=eyJ1cmwiOiJodHRwczovL2FwaS5ib3dtYXJrLmFpL21jcC9iYWRnZS1jdXJzb3IifQ==)
+[![Install in VS Code](https://img.shields.io/badge/VS_Code-Install_Bowmark-0098FF?style=flat-square&logo=visualstudiocode&logoColor=white)](https://vscode.dev/redirect/mcp/install?name=bowmark&config=%7B%22name%22%3A%22bowmark%22%2C%22type%22%3A%22http%22%2C%22url%22%3A%22https%3A%2F%2Fapi.bowmark.ai%2Fmcp%2Fbadge-vscode%22%7D)
+
+[![MCP](https://img.shields.io/badge/MCP-server-000000?style=flat-square)](https://api.bowmark.ai/mcp)
+[![npm](https://img.shields.io/npm/v/%40bowmark%2Fmcp?style=flat-square&label=%40bowmark%2Fmcp)](https://www.npmjs.com/package/@bowmark/mcp)
+[![PyPI](https://img.shields.io/pypi/v/bowmark-mcp?style=flat-square)](https://pypi.org/project/bowmark-mcp/)
+[![License](https://img.shields.io/badge/license-MIT-A3E635?style=flat-square)](https://opensource.org/licenses/MIT)
+
+<sub>**LM Studio** — GitHub strips a raw `lmstudio:` link, so this one is a paste, not a button. Copy it into your browser's address bar:</sub>
+
+```
+lmstudio://add_mcp?name=bowmark&config=eyJ1cmwiOiJodHRwczovL2FwaS5ib3dtYXJrLmFpL21jcC9iYWRnZS1sbXN0dWRpbyJ9
+```
+
 The [Bowmark](https://bowmark.ai) plugin for **Claude Code**, **Codex**, and every client that reads **[Agent Plugins](https://agent-plugins.org/) 1.0.0** — installs the `bowmark` skill *and* auto-wires the hosted MCP server (`https://api.bowmark.ai/mcp`) in one step, so there's no separate `claude mcp add` / `config.toml` edit.
 
 This package is the source of a one-way mirror to the public **[github.com/bowmark-ai/plugin](https://github.com/bowmark-ai/plugin)** (pushed on each `plugin-v*` release by [`release-plugin.yml`](../../.github/workflows/release-plugin.yml)) — same machinery as the skill mirror. The private monorepo can't be a public marketplace, but nothing here is private: only the public HTTP MCP URL and the public skill.
 
-**One tree, three manifests, one payload.** Claude Code reads `.claude-plugin/`, Codex reads `.codex-plugin/` + `.agents/plugins/`, and an Agent Plugins client reads the root `plugin.json` + `mcp.json`. All three bundle the same skill and the same hosted MCP; nothing is duplicated but the manifest. Adding the third cost two files because the spec's conventional layout (`skills/<name>/SKILL.md`) is the layout this package already had.
+**One tree, four manifests, one payload.** Claude Code reads `.claude-plugin/`, Codex reads `.codex-plugin/` + `.agents/plugins/`, Cursor reads `.cursor-plugin/`, and an Agent Plugins client reads the root `plugin.json` + `mcp.json`. All four bundle the same skill and the same hosted MCP; nothing is duplicated but the manifest. Adding the third cost two files because the spec's conventional layout (`skills/<name>/SKILL.md`) is the layout this package already had.
 
 **The Agent Plugins spec deliberately says nothing about installation** — no registry, no install command, no URL scheme; §"Client-managed installation, distribution, enablement, updates, and user interface are outside the portable specification." What is portable is the *directory*, so distribution is the same git repo it already was, and each host keeps its own way in.
 
@@ -34,7 +48,7 @@ git clone https://github.com/bowmark-ai/plugin plugins/bowmark
 git clone https://github.com/bowmark-ai/plugin ~/.codex/plugins/bowmark
 ```
 
-Hosts with a marketplace UI (Cursor's Settings → Plugins → Team Marketplaces → Import from Repo, Codex's `/plugins` browser) point at `bowmark-ai/plugin` and read the manifests in-tree.
+Hosts with a marketplace UI (Cursor's Settings → Plugins → Team Marketplaces → Import from Repo, Codex's `/plugins` browser) point at `bowmark-ai/plugin` and read the manifests in-tree. **Cursor does not read the root `plugin.json`** — it reads `.cursor-plugin/plugin.json` first and never gets past `.claude-plugin/plugin.json` if that one is present; see the section below.
 
 Any of the three routes gets you the skill + the MCP (tools `mcp__bowmark__get_library`, `mcp__bowmark__run`) and a card in the host's plugin directory.
 
@@ -49,6 +63,8 @@ packages/plugin/
 │   └── plugin.json          #   plugin: bowmark — inline mcpServers, skills
 ├── .codex-plugin/           # Codex
 │   └── plugin.json          #   plugin: bowmark — mcpServers "./.mcp.json", skills "./skills/"
+├── .cursor-plugin/          # Cursor — FIRST in Cursor's manifest lookup, and that is the point
+│   └── plugin.json          #   plugin: bowmark — inline mcpServers ({url}), skills. NO $schema
 ├── .agents/plugins/
 │   └── marketplace.json     # Codex marketplace (source {local, "./"})
 ├── .github/plugin/
@@ -69,7 +85,42 @@ packages/plugin/
 
 `plugin.json` at the root carries **metadata only** — the schema is `additionalProperties: false` and has no `skills` or `mcpServers` field, unlike both sibling manifests. Components are found by convention (`skills/`, `mcp.json`), so there is nothing to keep in sync there and nothing to add when a skill is added.
 
-**Each channel gets its own published destination** — `…/mcp/claude-code-plugin`, `…/mcp/codex-plugin`, `…/mcp/agent-plugins`, never the bare `…/mcp`. One segment carries both the install attribution and the platform pin. The first two **pin** their platform because a host-specific manifest knows its host at install time; **`agent-plugins` does not pin**, because the entire premise of the format is that six named hosts and anything else conformant read the same manifest — a pin there would assert one of six. Keep all three distinct when editing: pointing two at one segment would hand one host the other's operating text. Detection and the segment list live in [`apps/api/README.md`](https://github.com/Metroxe/bowmark/blob/main/apps/api/README.md#per-platform-instructions).
+### Cursor: `.cursor-plugin/` exists because Cursor reads `.claude-plugin/`, not the root
+
+Cursor looks for a plugin manifest in this order and takes the first that exists:
+
+```
+.cursor-plugin/plugin.json  →  .claude-plugin/plugin.json  →  plugin.json
+```
+
+**`.claude-plugin/` is ahead of the root `plugin.json`.** So a repo carrying both hands Cursor
+the Claude Code manifest, and the Agent Plugins manifest written for exactly this kind of host
+is never read — despite Cursor's own docs pointing at it. Without `.cursor-plugin/`, Cursor
+would install on `…/mcp/claude-code-plugin`: every Cursor user recorded as a Claude Code
+install and served Claude Code's operating text. `sessions.source` is write-once, so that is
+not recoverable afterwards.
+
+Cursor also validates `$schema` against an allowlist of exactly **two** URLs —
+`https://agent-plugins.org/schemas/1.0.0/plugin.schema.json` and its `mcp.schema.json`
+sibling — plus **absent**. What it does with anything else changed under us mid-2026:
+
+| Cursor | Unrecognized `$schema` |
+|---|---|
+| 3.15.19 | **throws out of the whole lookup.** No fall-through. Plugin shows as installed and contributes nothing; the only trace is `Cursor plugin load error …: Unsupported plugin manifest $schema version: …` in its own log |
+| 3.17.19 | logs `declares an unrecognized $schema, loading anyway` and continues |
+
+Two rules follow, and both are load-bearing:
+
+- **Never add `$schema` to `.cursor-plugin/plugin.json`.** There is no published Cursor schema
+  URL, and this file is not an Agent Plugins root manifest (it lists components; that one is
+  metadata-only). Absent is the only value that is both correct and accepted.
+- **`.cursor-plugin/plugin.json` must keep existing.** Deleting it does not degrade Cursor to
+  the root manifest — it degrades Cursor to Claude Code's.
+
+`mcpServers` here uses Cursor's own shape (`{ "url": … }`, no `type`), inline like Claude's.
+Full reasoning and the log evidence: [`docs/decisions/2026-08-24-cursor-plugin-manifest.md`](https://github.com/Metroxe/bowmark/blob/main/docs/decisions/2026-08-24-cursor-plugin-manifest.md).
+
+**Each channel gets its own published destination** — `…/mcp/claude-code-plugin`, `…/mcp/codex-plugin`, `…/mcp/cursor-plugin`, `…/mcp/agent-plugins`, never the bare `…/mcp`. One segment carries both the install attribution and the platform pin. The first three **pin** their platform because a host-specific manifest knows its host at install time; **`agent-plugins` does not pin**, because the entire premise of the format is that six named hosts and anything else conformant read the same manifest — a pin there would assert one of six. Keep all four distinct when editing: pointing two at one segment would hand one host the other's operating text. Detection and the segment list live in [`apps/api/README.md`](https://github.com/Metroxe/bowmark/blob/main/apps/api/README.md#per-platform-instructions).
 
 ## The bundled skill is a mirror — edit canonical, then sync
 
