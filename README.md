@@ -118,9 +118,10 @@ Two rules follow, and both are load-bearing:
   the root manifest — it degrades Cursor to Claude Code's.
 
 `mcpServers` here uses Cursor's own shape (`{ "url": … }`, no `type`), inline like Claude's.
-Full reasoning and the log evidence: [`docs/decisions/2026-08-24-cursor-plugin-manifest.md`](https://github.com/Metroxe/bowmark/blob/main/docs/decisions/2026-08-24-cursor-plugin-manifest.md).
+Full reasoning and the log evidence: `docs/decisions/2026-08-24-cursor-plugin-manifest.md` in
+Bowmark's internal engineering repo (not public).
 
-**Each channel gets its own published destination** — `…/mcp/claude-code-plugin`, `…/mcp/codex-plugin`, `…/mcp/cursor-plugin`, `…/mcp/agent-plugins`, never the bare `…/mcp`. One segment carries both the install attribution and the platform pin. The first three **pin** their platform because a host-specific manifest knows its host at install time; **`agent-plugins` does not pin**, because the entire premise of the format is that six named hosts and anything else conformant read the same manifest — a pin there would assert one of six. Keep all four distinct when editing: pointing two at one segment would hand one host the other's operating text. Detection and the segment list live in [`apps/api/README.md`](https://github.com/Metroxe/bowmark/blob/main/apps/api/README.md#per-platform-instructions).
+**Each channel gets its own published destination** — `…/mcp/claude-code-plugin`, `…/mcp/codex-plugin`, `…/mcp/cursor-plugin`, `…/mcp/agent-plugins`, never the bare `…/mcp`. One segment carries both the install attribution and the platform pin. The first three **pin** their platform because a host-specific manifest knows its host at install time; **`agent-plugins` does not pin**, because the entire premise of the format is that six named hosts and anything else conformant read the same manifest — a pin there would assert one of six. Keep all four distinct when editing: pointing two at one segment would hand one host the other's operating text. Detection and the segment list live in Bowmark's internal `apps/api/README.md` § Per-platform instructions (not public).
 
 ## The bundled skill is a mirror — edit canonical, then sync
 
