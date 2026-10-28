@@ -1,0 +1,7 @@
+{
+  "mcpServers": {
+    "bowmark": {
+      "serverUrl": "https://api.bowmark.ai/mcp/antigravity-plugin"
+    }
+  }
+}

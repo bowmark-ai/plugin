@@ -14,11 +14,13 @@
 lmstudio://add_mcp?name=bowmark&config=eyJ1cmwiOiJodHRwczovL2FwaS5ib3dtYXJrLmFpL21jcC9iYWRnZS1sbXN0dWRpbyJ9
 ```
 
-The [Bowmark](https://bowmark.ai) plugin for **Claude Code**, **Codex**, and every client that reads **[Agent Plugins](https://agent-plugins.org/) 1.0.0** — installs the `bowmark` skill *and* auto-wires the hosted MCP server (`https://api.bowmark.ai/mcp`) in one step, so there's no separate `claude mcp add` / `config.toml` edit.
+The [Bowmark](https://bowmark.ai) plugin for **Claude Code**, **Codex**, **Antigravity**, and every client that reads **[Agent Plugins](https://agent-plugins.org/) 1.0.0** — installs the `bowmark` skill *and* auto-wires the hosted MCP server (`https://api.bowmark.ai/mcp`) in one step, so there's no separate `claude mcp add` / `config.toml` edit.
 
 This package is the source of a one-way mirror to the public **[github.com/bowmark-ai/plugin](https://github.com/bowmark-ai/plugin)** (pushed on each `plugin-v*` release by [`release-plugin.yml`](../../.github/workflows/release-plugin.yml)) — same machinery as the skill mirror. The private monorepo can't be a public marketplace, but nothing here is private: only the public HTTP MCP URL and the public skill.
 
-**One tree, four manifests, one payload.** Claude Code reads `.claude-plugin/`, Codex reads `.codex-plugin/` + `.agents/plugins/`, Cursor reads `.cursor-plugin/`, and an Agent Plugins client reads the root `plugin.json` + `mcp.json`. All four bundle the same skill and the same hosted MCP; nothing is duplicated but the manifest. Adding the third cost two files because the spec's conventional layout (`skills/<name>/SKILL.md`) is the layout this package already had.
+**One tree, five manifests, one payload.** Claude Code reads `.claude-plugin/`, Codex reads `.codex-plugin/` + `.agents/plugins/`, Cursor reads `.cursor-plugin/`, an Agent Plugins client reads the root `plugin.json` + `mcp.json`, and Antigravity reads that same root `plugin.json` + its own `mcp_config.json`. All five bundle the same skill and the same hosted MCP; nothing is duplicated but the manifest. Adding the third cost two files because the spec's conventional layout (`skills/<name>/SKILL.md`) is the layout this package already had.
+
+**Antigravity is the one host that does NOT get its own manifest subdirectory, and that is forced, not a shortcut.** `agy plugin install <repo>` reads `plugin.json` only at the repo ROOT — confirmed against the real `agy` CLI (1.4.8, 2026-10-27) — with no `.antigravity-plugin/`-style override the way Cursor's lookup chain has one. So it shares the root Agent Plugins manifest rather than getting a sixth directory. Antigravity's own validator is lenient about the extra fields that manifest carries (`version`, `author`, `homepage`, `repository`, `license`, `keywords` — all outside its own schema's `name`/`description`/`$schema`): it logs a note (`"declares the Agent Plugins 1.0.0 $schema"`) and loads it as a **native** plugin whenever the host's `enable-agent-plugins-spec` flag is off, which is the common case. In that mode it reads `mcp_config.json` — Antigravity's own file and its own field name, `serverUrl`, never `httpUrl` or `url` — instead of the shared `mcp.json`. With the flag on, Antigravity reads `mcp.json` instead and the install is indistinguishable from any other Agent Plugins client, attributed to `agent-plugins` rather than `antigravity-plugin`. Either way the skill and one MCP server install; which file supplied the MCP server is the only thing that varies. **Without `mcp_config.json` the skill installs and the MCP server silently does not** — measured the same day: `agy plugin install` reported `skills: 1 installed` and nothing about `mcpServers` at all.
 
 **The Agent Plugins spec deliberately says nothing about installation** — no registry, no install command, no URL scheme; §"Client-managed installation, distribution, enablement, updates, and user interface are outside the portable specification." What is portable is the *directory*, so distribution is the same git repo it already was, and each host keeps its own way in.
 
@@ -34,6 +36,12 @@ claude plugin install bowmark@bowmark-ai
 ```sh
 codex plugin marketplace add bowmark-ai/plugin
 codex /plugins            # open the plugin browser, then install Bowmark
+```
+
+## Install — Antigravity
+
+```sh
+agy plugin install https://github.com/bowmark-ai/plugin
 ```
 
 ## Install — an Agent Plugins client (ChatGPT, Cursor, Copilot, VS Code, Kiro, …)
@@ -80,8 +88,9 @@ packages/plugin/
 │   └── marketplace.json     # GitHub Copilot's DEFAULT marketplace path — Copilot deprecated
 │                            #   direct installs, so this is required, not convenient
 ├── .mcp.json                # MCP server config Codex's plugin.json references (HTTP, url)
-├── plugin.json              # Agent Plugins 1.0.0 manifest — metadata ONLY, no component lists
+├── plugin.json              # Agent Plugins 1.0.0 manifest — metadata ONLY, no component lists. ALSO read by Antigravity (no override directory for it)
 ├── mcp.json                 # Agent Plugins MCP config (streamable-http) — NOT the same file as .mcp.json
+├── mcp_config.json          # Antigravity's own MCP config — `serverUrl`, read only while its enable-agent-plugins-spec flag is off
 ├── gemini-extension.json    # Gemini CLI extension — `httpUrl`, NOT `url`, and no bridge
 ├── skills/
 │   └── bowmark/
@@ -90,7 +99,7 @@ packages/plugin/
 └── sync-skill.sh            # regenerates the skill mirror
 ```
 
-**Three MCP declarations, three shapes, and none of them can be shared.** Claude declares it **inline** in `.claude-plugin/plugin.json`; Codex points its manifest at `.mcp.json` (`{ name: { url } }`); Agent Plugins reads the root `mcp.json` (`{ $schema, mcpServers: { name: { type: "streamable-http", url } } }` — `type` is REQUIRED and is `streamable-http`, not the `http` the other two spell it). **`mcp.json` and `.mcp.json` are different files for different hosts** and the leading dot is the only thing telling them apart, so read the path twice before editing either.
+**Four MCP declarations, four shapes, and none of them can be shared.** Claude declares it **inline** in `.claude-plugin/plugin.json`; Codex points its manifest at `.mcp.json` (`{ name: { url } }`); Agent Plugins reads the root `mcp.json` (`{ $schema, mcpServers: { name: { type: "streamable-http", url } } }` — `type` is REQUIRED and is `streamable-http`, not the `http` the other two spell it); Antigravity reads its own `mcp_config.json` (`{ mcpServers: { name: { serverUrl } } }` — `serverUrl`, confirmed against the real `agy` CLI; it does not accept `httpUrl` or `url`). **`mcp.json` and `.mcp.json` are different files for different hosts** and the leading dot is the only thing telling them apart, so read the path twice before editing either — `mcp_config.json` has no dotted twin to confuse it with.
 
 `plugin.json` at the root carries **metadata only** — the schema is `additionalProperties: false` and has no `skills` or `mcpServers` field, unlike both sibling manifests. Components are found by convention (`skills/`, `mcp.json`), so there is nothing to keep in sync there and nothing to add when a skill is added.
 
@@ -130,7 +139,7 @@ Two rules follow, and both are load-bearing:
 Full reasoning and the log evidence: `docs/decisions/2026-08-24-cursor-plugin-manifest.md` in
 Bowmark's internal engineering repo (not public).
 
-**Each channel gets its own published destination** — `…/mcp/claude-code-plugin`, `…/mcp/codex-plugin`, `…/mcp/cursor-plugin`, `…/mcp/agent-plugins`, never the bare `…/mcp`. One segment carries both the install attribution and the platform pin. The first three **pin** their platform because a host-specific manifest knows its host at install time; **`agent-plugins` does not pin**, because the entire premise of the format is that six named hosts and anything else conformant read the same manifest — a pin there would assert one of six. Keep all four distinct when editing: pointing two at one segment would hand one host the other's operating text. Detection and the segment list live in Bowmark's internal `apps/api/README.md` § Per-platform instructions (not public).
+**Each channel gets its own published destination** — `…/mcp/claude-code-plugin`, `…/mcp/codex-plugin`, `…/mcp/cursor-plugin`, `…/mcp/agent-plugins`, `…/mcp/antigravity-plugin`, never the bare `…/mcp`. One segment carries both the install attribution and the platform pin. The first three **pin** their platform because a host-specific manifest knows its host at install time; **`agent-plugins` and `antigravity-plugin` do not pin** — `agent-plugins` because the entire premise of the format is that six named hosts and anything else conformant read the same manifest, and `antigravity-plugin` because `antigravity` is not in the `Platform` union at all (same reasoning as `gemini-extension`). Keep all five distinct when editing: pointing two at one segment would hand one host the other's operating text. Detection and the segment list live in Bowmark's internal `apps/api/README.md` § Per-platform instructions (not public).
 
 ## The bundled skill is a mirror — edit canonical, then sync
 
@@ -145,7 +154,7 @@ CI fails any PR that changes the canonical skill without re-syncing.
 
 ## Versioning
 
-release-please owns `package.json` `version` (component `plugin`, tag `plugin-v*`) and mirrors it into **all four** version-carrying manifests — `.claude-plugin/plugin.json`, `.codex-plugin/plugin.json`, the root `plugin.json` and `gemini-extension.json` — at `$.version` via json updaters, so each release republishes the plugin at the new version on every host. **A fifth manifest means a fifth `extra-files` entry**; miss it and that host serves a stale version forever with nothing failing. (The two `marketplace.json` files carry no version and need no entry.) Ship changes under `feat(plugin):` / `fix(plugin):`.
+release-please owns `package.json` `version` (component `plugin`, tag `plugin-v*`) and mirrors it into **all four** version-carrying manifests — `.claude-plugin/plugin.json`, `.codex-plugin/plugin.json`, the root `plugin.json` and `gemini-extension.json` — at `$.version` via json updaters, so each release republishes the plugin at the new version on every host. **A new manifest means a new `extra-files` entry UNLESS it carries no version field** — miss one that does and that host serves a stale version forever with nothing failing. (The two `marketplace.json` files and `mcp_config.json` carry no version and need no entry — same shape as `mcp.json` and `.mcp.json`.) Ship changes under `feat(plugin):` / `fix(plugin):`.
 
 ## Validate
 
