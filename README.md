@@ -54,6 +54,15 @@ Any of the three routes gets you the skill + the MCP (tools `mcp__bowmark__get_l
 
 Other surfaces are unchanged and live elsewhere: skill-only via `npx skills add bowmark-ai/skill` (works on Claude Code, Codex, Cursor, Copilot, OpenCode, …), MCP-only via `claude mcp add` / a Codex `[mcp_servers.bowmark]` block, or point any MCP client straight at the URL. See [bowmark.ai/#install](https://bowmark.ai/#install).
 
+## Install in Kiro
+
+In Kiro, open the **Powers** panel, choose **Add Custom Power**, then **Import power from GitHub**, and paste `https://github.com/bowmark-ai/plugin`. Kiro reads the root `plugin.json` and `mcp.json`, so you get the hosted Bowmark MCP server as a power.
+
+## Privacy and support
+
+- Privacy policy: [bowmark.ai/privacy](https://bowmark.ai/privacy)
+- Support: [support@bowmark.ai](mailto:support@bowmark.ai)
+
 ## Layout
 
 ```
