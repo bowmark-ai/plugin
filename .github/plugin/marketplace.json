@@ -5,7 +5,7 @@
     "url": "https://bowmark.ai"
   },
   "metadata": {
-    "description": "Official Bowmark plugin — the web as callable functions, skill + hosted MCP in one install."
+    "description": "Official Bowmark plugin: the web as callable functions, skill + hosted MCP in one install."
   },
   "plugins": [
     {

@@ -141,7 +141,7 @@ between two steps cannot finish in `run`: an OpenTable booking that texts the us
 a cart filled over several steps. Use `session_call` for those.
 
 - **`session_call({ path, args?, sessionId? })`** runs ONE library function in a session
-  that keeps its browser. `path` is the function as a script writes it after `bowmark.`,
+  that stays open for the next call. `path` is the function as a script writes it after `bowmark.`,
   split on the dots: `["providers","opentable","startBooking"]`. Omit `sessionId` on the
   first call; the answer carries the `sessionId` to pass on every later call. The answer is
   `{ sessionId, ok, status, result, logs, error?, code? }`.
