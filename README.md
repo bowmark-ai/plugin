@@ -16,6 +16,8 @@ lmstudio://add_mcp?name=bowmark&config=eyJ1cmwiOiJodHRwczovL2FwaS5ib3dtYXJrLmFpL
 
 The [Bowmark](https://bowmark.ai) plugin for **Claude Code**, **Codex**, **Antigravity**, and every client that reads **[Agent Plugins](https://agent-plugins.org/) 1.0.0** — installs the `bowmark` skill *and* auto-wires the hosted MCP server (`https://api.bowmark.ai/mcp`) in one step, so there's no separate `claude mcp add` / `config.toml` edit.
 
+Jigs: small pages built on Bowmark and published for anyone to use. Each one runs with your own logins on the sites it lists, and your agent can search, open and publish them. Browse the store at https://bowmark.ai/jigs.
+
 This package is the source of a one-way mirror to the public **[github.com/bowmark-ai/plugin](https://github.com/bowmark-ai/plugin)** (pushed on each `plugin-v*` release by [`release-plugin.yml`](../../.github/workflows/release-plugin.yml)) — same machinery as the skill mirror. The private monorepo can't be a public marketplace, but nothing here is private: only the public HTTP MCP URL and the public skill.
 
 **One tree, five manifests, one payload.** Claude Code reads `.claude-plugin/`, Codex reads `.codex-plugin/` + `.agents/plugins/`, Cursor reads `.cursor-plugin/`, an Agent Plugins client reads the root `plugin.json` + `mcp.json`, and Antigravity reads that same root `plugin.json` + its own `mcp_config.json`. All five bundle the same skill and the same hosted MCP; nothing is duplicated but the manifest. Adding the third cost two files because the spec's conventional layout (`skills/<name>/SKILL.md`) is the layout this package already had.
