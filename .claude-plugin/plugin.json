@@ -1,7 +1,7 @@
 {
   "$schema": "https://anthropic.com/claude-code/plugin.schema.json",
   "name": "bowmark",
-  "version": "4.33.0",
+  "version": "4.34.0",
   "description": "The web as callable functions: search flights across several aggregators, price a part across retailers, and other tasks that only exist behind a live site. The agent reads a typed function library, writes a short script, and Bowmark runs it on the real sites. Bundles the bowmark skill and auto-wires the hosted MCP server.",
   "author": {
     "name": "Bowmark AI",
@@ -10,20 +10,33 @@
   "homepage": "https://bowmark.ai",
   "repository": "https://github.com/bowmark-ai/plugin",
   "license": "MIT",
+  "privacyPolicyUrl": "https://bowmark.ai/privacy",
   "keywords": [
     "mcp",
-    "web-agent",
-    "browser",
+    "web-data",
+    "web-scraping",
     "automation",
-    "playwright"
+    "ai-agents"
   ],
   "skills": [
     "./skills/bowmark"
   ],
+  "userConfig": [
+    {
+      "key": "api_key",
+      "type": "secret",
+      "label": "Bowmark API Key",
+      "description": "Your Bowmark API key from https://bowmark.ai/dashboard/keys",
+      "sensitive": true
+    }
+  ],
   "mcpServers": {
     "bowmark": {
       "type": "http",
-      "url": "https://api.bowmark.ai/mcp/claude-code-plugin"
+      "url": "https://api.bowmark.ai/mcp/claude-code-plugin",
+      "headers": {
+        "Authorization": "Bearer ${userConfig:api_key}"
+      }
     }
   }
 }
